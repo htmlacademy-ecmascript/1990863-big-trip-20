@@ -1,7 +1,6 @@
 import { remove, render, RenderPosition } from '../framework/render.js';
 import EditFormView from '../view/edit-form-view.js';
 import { UpdateType, UserAction } from '../const.js';
-import { nanoid } from 'nanoid';
 import { getAllDestinations } from '../utils/point.js';
 
 export default class NewPontPresenter {
@@ -47,15 +46,31 @@ export default class NewPontPresenter {
     document.removeEventListener('keydown', this.#escKeyDownHandler);
   }
 
+  setSaving() {
+    this.#pointEditComponent.updateElement({
+      isDisabled: true,
+      isSaving: true,
+    });
+  }
+
+  setAborting() {
+    const resetFormState = () => {
+      this.#pointEditComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    this.#pointEditComponent.shake(resetFormState);
+  }
+
   #handleFormSubmit = (point) => {
     this.#handleDataChange(
       UserAction.ADD_POINT,
       UpdateType.MINOR,
-      // Пока у нас нет сервера, который бы после сохранения
-      // выдывал честный id задачи, нам нужно позаботиться об этом самим
-      {id: nanoid(), ...point},
+      point,
     );
-    this.destroy();
   };
 
   #handleDeleteClick = () => {
